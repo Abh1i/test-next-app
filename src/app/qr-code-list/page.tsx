@@ -11,6 +11,7 @@ export default function QrCodeListPage() {
             }
         };
          const timeout = setTimeout(() => {
+            console.log('');
     }, 2000);
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
