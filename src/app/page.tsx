@@ -23,7 +23,7 @@ export default function HomePage() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Hello World App</h1>
+      <h1>QR APP</h1>
 
       {customer ? (
         <div>
