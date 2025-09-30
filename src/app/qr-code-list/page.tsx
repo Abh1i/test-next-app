@@ -10,6 +10,8 @@ export default function QrCodeListPage() {
                 setCustomer(event.data.payload); // <-- shows inside iframe
             }
         };
+         const timeout = setTimeout(() => {
+    }, 2000);
         window.addEventListener('message', handleMessage);
         return () => window.removeEventListener('message', handleMessage);
     }, []);
