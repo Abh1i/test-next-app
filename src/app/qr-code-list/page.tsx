@@ -1,27 +1,25 @@
 'use client';
-
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 export default function QrCodeListPage() {
+  const searchParams = useSearchParams();
   const [customer, setCustomer] = useState<any>(null);
 
   useEffect(() => {
-    // Parse query params manually
-    const searchParams = new URLSearchParams(window.location.search);
     const customerParam = searchParams.get('customer');
     if (customerParam) {
       try {
         setCustomer(JSON.parse(decodeURIComponent(customerParam)));
       } catch (err) {
-        console.error('Failed to parse customer info', err);
+        console.error('Invalid customer data', err);
       }
     }
-  }, []);
+  }, [searchParams]);
 
   return (
     <div style={{ padding: '20px' }}>
       <h1>QR Code List</h1>
-
       {customer && (
         <div style={{ marginBottom: '20px' }}>
           <h3>Customer Info Received:</h3>

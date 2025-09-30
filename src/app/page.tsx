@@ -1,35 +1,27 @@
 'use client';
-
 import { useState, useEffect, FormEvent } from 'react';
 
 export default function HomePage() {
-  // Login form states
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginResponse, setLoginResponse] = useState<any>(null);
-
-  // SCA iframe states
   const [scaData, setScaData] = useState<any>(null);
-  const [scaChecked, setScaChecked] = useState(false);
 
-  // Handle SCA postMessage
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === 'CUSTOMER_INFO') {
         setScaData(event.data.payload);
       }
-      setScaChecked(true);
     };
 
     window.addEventListener('message', handleMessage);
 
-    // Ask parent page for SCA data
+    // Ask parent SCA page for customer info
     window.parent.postMessage({ type: 'GET_CUSTOMER_INFO' }, '*');
 
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
-  // If SCA data exists, open QR Code List page automatically
   useEffect(() => {
     if (scaData) {
       const url = new URL('/qr-code-list', window.location.origin);
@@ -38,7 +30,6 @@ export default function HomePage() {
     }
   }, [scaData]);
 
-  // Handle login form submit
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setLoginResponse(null);
@@ -49,26 +40,20 @@ export default function HomePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-
       const text = await res.text();
       let data;
       try {
         data = JSON.parse(text);
         setLoginResponse(data);
+
+        if (!data.error) {
+          const payload = { id: data.id, name: data.name, email: data.email, staticValue: 'THIS_IS_STATIC_VALUE' };
+          const url = new URL('/qr-code-list', window.location.origin);
+          url.searchParams.set('customer', encodeURIComponent(JSON.stringify(payload)));
+          window.open(url.toString(), '_blank');
+        }
       } catch {
         setLoginResponse({ error: 'Response is not JSON', text });
-        return;
-      }
-
-      if (!data.error) {
-        const payload = {
-          id: data.id || 'unknown',
-          name: data.name || '',
-          email: data.email || '',
-        };
-        const url = new URL('/qr-code-list', window.location.origin);
-        url.searchParams.set('customer', encodeURIComponent(JSON.stringify(payload)));
-        window.open(url.toString(), '_blank');
       }
     } catch (err: any) {
       setLoginResponse({ error: err.message });
@@ -83,21 +68,11 @@ export default function HomePage() {
           <form onSubmit={handleLogin}>
             <div>
               <label>Email: </label>
-              <input
-                type="text"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+              <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div>
               <label>Password: </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </div>
             <button type="submit">Login</button>
           </form>
