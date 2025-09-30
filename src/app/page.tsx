@@ -10,7 +10,6 @@ export default function HomePage() {
 
   // SCA iframe states
   const [scaData, setScaData] = useState<any>(null);
-  const [scaChecked, setScaChecked] = useState(false); // marks that we attempted SCA data
 
   // Handle SCA postMessage
   useEffect(() => {
@@ -18,7 +17,6 @@ export default function HomePage() {
       if (event.data?.type === 'CUSTOMER_INFO') {
         setScaData(event.data.payload);
       }
-      setScaChecked(true);
     };
 
     window.addEventListener('message', handleMessage);
@@ -28,6 +26,15 @@ export default function HomePage() {
 
     return () => window.removeEventListener('message', handleMessage);
   }, []);
+
+  // Open QR Code List page automatically if SCA data arrives
+  useEffect(() => {
+    if (scaData) {
+      const url = new URL('/qr-code-list', window.location.origin);
+      url.searchParams.set('customer', encodeURIComponent(JSON.stringify(scaData)));
+      window.open(url.toString(), '_blank');
+    }
+  }, [scaData]);
 
   // Handle login form submit
   const handleLogin = async (e: FormEvent) => {
@@ -99,25 +106,6 @@ export default function HomePage() {
               <pre>{JSON.stringify(loginResponse, null, 2)}</pre>
             </div>
           )}
-        </>
-      )}
-
-      {/* Show message if SCA tried but no data */}
-
-      {/* {scaChecked && !scaData && (
-        <div style={{ marginTop: '20px', color: 'red' }}>
-          No data received from SCA
-        </div>
-      )} */}
-
-      {/* If SCA data is received, open QR Code List page automatically */}
-      {scaData && (
-        <>
-          {(() => {
-            const url = new URL('/qr-code-list', window.location.origin);
-            url.searchParams.set('customer', encodeURIComponent(JSON.stringify(scaData)));
-            window.open(url.toString(), '_blank');
-          })()}
         </>
       )}
     </div>
