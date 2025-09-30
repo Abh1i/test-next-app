@@ -103,7 +103,7 @@ export default function HomePage() {
           {loginResponse && (
             <div style={{ marginTop: '20px' }}>
               <h3>Service Response:</h3>
-              <pre>{JSON.stringify(loginResponse, null, 2)}</pre>
+              <p>{JSON.stringify(loginResponse, null, 2)}</p>
             </div>
           )}
         </>
