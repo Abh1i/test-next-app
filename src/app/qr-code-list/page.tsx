@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function QrCodeListPage() {
+function QrCodeListContent() {
   const searchParams = useSearchParams();
   const [customer, setCustomer] = useState<any>(null);
 
@@ -33,5 +34,13 @@ export default function QrCodeListPage() {
         <li>3rd QR Code</li>
       </ul>
     </div>
+  );
+}
+
+export default function QrCodeListPage() {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <QrCodeListContent />
+    </Suspense>
   );
 }
