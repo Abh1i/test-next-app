@@ -10,6 +10,7 @@ export default function HomePage() {
 
   // SCA iframe states
   const [scaData, setScaData] = useState<any>(null);
+  const [scaChecked, setScaChecked] = useState(false);
 
   // Handle SCA postMessage
   useEffect(() => {
@@ -17,6 +18,7 @@ export default function HomePage() {
       if (event.data?.type === 'CUSTOMER_INFO') {
         setScaData(event.data.payload);
       }
+      setScaChecked(true);
     };
 
     window.addEventListener('message', handleMessage);
@@ -27,7 +29,7 @@ export default function HomePage() {
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
-  // Open QR Code List page automatically if SCA data arrives
+  // If SCA data exists, open QR Code List page automatically
   useEffect(() => {
     if (scaData) {
       const url = new URL('/qr-code-list', window.location.origin);
@@ -49,23 +51,24 @@ export default function HomePage() {
       });
 
       const text = await res.text();
+      let data;
       try {
-        const data = JSON.parse(text);
+        data = JSON.parse(text);
         setLoginResponse(data);
-
-        // If login is successful, open QR Code List page in new tab
-        if (!data.error) {
-          const payload = {
-            id: data.id || 'unknown',
-            name: data.name || '',
-            email: data.email || '',
-          };
-          const url = new URL('/qr-code-list', window.location.origin);
-          url.searchParams.set('customer', encodeURIComponent(JSON.stringify(payload)));
-          window.open(url.toString(), '_blank');
-        }
       } catch {
         setLoginResponse({ error: 'Response is not JSON', text });
+        return;
+      }
+
+      if (!data.error) {
+        const payload = {
+          id: data.id || 'unknown',
+          name: data.name || '',
+          email: data.email || '',
+        };
+        const url = new URL('/qr-code-list', window.location.origin);
+        url.searchParams.set('customer', encodeURIComponent(JSON.stringify(payload)));
+        window.open(url.toString(), '_blank');
       }
     } catch (err: any) {
       setLoginResponse({ error: err.message });
@@ -74,7 +77,6 @@ export default function HomePage() {
 
   return (
     <div style={{ padding: '20px' }}>
-      {/* Only show login form if no SCA data */}
       {!scaData && (
         <>
           <h1>Login Form</h1>
@@ -103,7 +105,7 @@ export default function HomePage() {
           {loginResponse && (
             <div style={{ marginTop: '20px' }}>
               <h3>Service Response:</h3>
-              <p>{JSON.stringify(loginResponse, null, 2)}</p>
+              <pre>{JSON.stringify(loginResponse, null, 2)}</pre>
             </div>
           )}
         </>
