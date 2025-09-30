@@ -1,72 +1,34 @@
 'use client';
+import { useEffect, useState } from "react";
 
-import { useState, FormEvent } from 'react';
-import SuiteLetCaller from './components/SuiteLetCaller';
+export default function MyApp({ Component, pageProps }: any) {
+  const [customer, setCustomer] = useState<{id:number,name:string,email:string} | null>(null);
 
-export default function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [response, setResponse] = useState<any>(null);
-
-  const handleLogin = async (e: FormEvent) => {
-    e.preventDefault();
-    setResponse(null);
-
-    try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const text = await res.text();
-      try {
-        const data = JSON.parse(text);
-        setResponse(data);
-      } catch {
-        setResponse({ error: 'Response is not JSON', text });
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // For now, accept messages from anywhere
+      if (event.data.type === "CUSTOMER_INFO") {
+        setCustomer(event.data.payload);
       }
-    } catch (err: any) {
-      setResponse({ error: err.message });
-    }
-  };
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    // Cleanup
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Login Form</h1>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>Email: </label>
-          <input
-            type="text"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password: </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
-
-      {response && (
-        <div style={{ marginTop: '20px' }}>
-          <h3>Service Response:</h3>
-          <pre>{JSON.stringify(response, null, 2)}</pre>
-        </div>
-      )}
-
-      <div>
-        <h1>Test Suitelet Call</h1>
-        <SuiteLetCaller />
+    <>
+      <div style={{ padding: '10px', border: '1px solid gray', marginBottom: '20px' }}>
+        <h3>Static Customer Info:</h3>
+        {customer ? (
+          <pre>{JSON.stringify(customer, null, 2)}</pre>
+        ) : (
+          <p>No customer info yet</p>
+        )}
       </div>
-    </div>
+      <Component {...pageProps} customer={customer} />
+    </>
   );
 }
