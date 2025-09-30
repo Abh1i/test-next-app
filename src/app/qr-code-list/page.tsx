@@ -1,8 +1,9 @@
 'use client';
+
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-export default function QrCodeListPage() {
+export default function QrCodeListInner() {
   const searchParams = useSearchParams();
   const [customer, setCustomer] = useState<any>(null);
 
