@@ -33,7 +33,7 @@ export default function LoginForm() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Login</h1>
+      <h1>Login Form</h1>
       <form onSubmit={handleLogin}>
         <div>
           <label>Email: </label>

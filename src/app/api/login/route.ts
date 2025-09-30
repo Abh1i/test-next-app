@@ -16,6 +16,7 @@ export async function POST(req: Request) {
     });
 
     const text = await res.text();
+
     try {
       const data = JSON.parse(text);
       return NextResponse.json(data);
