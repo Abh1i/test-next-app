@@ -47,7 +47,7 @@ export default function HomePage() {
         setLoginResponse(data);
 
         if (!data.error) {
-          const payload = { id: data.id, name: data.name, email: data.email, staticValue: 'THIS_IS_STATIC_VALUE' };
+          const payload = { id: data.id, name: data.name, email: data.email };
           const url = new URL('/qr-code-list', window.location.origin);
           url.searchParams.set('customer', encodeURIComponent(JSON.stringify(payload)));
           window.open(url.toString(), '_blank');
